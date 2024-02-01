@@ -87,3 +87,11 @@ def retriveLowPValueColumns(X,y):
             goodColumns.append(col)
     return goodColumns
 
+def retrieveThresholdCorrelationColumns(X,y,threshold):
+    goodColumns = []
+    for col in list(X.columns):
+        r,p = spearmanr(X[[col]].values.ravel(),y)
+        if abs(r) > threshold:
+            goodColumns.append(col)
+    return goodColumns
+
