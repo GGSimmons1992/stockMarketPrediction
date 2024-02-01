@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestRegressor as rf
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
+from scipy.stats import spearmanr
 
 # dataColumns = ["Close","Volume","mom","mom1","mom2","mom3","ROC_5","ROC_10","ROC_15","ROC_20","EMA_10","EMA_20",
 #                "EMA_50","EMA_200","DTB4WK","DTB3","DTB6","DGS5","DGS10","Oil","Gold","DAAA","DBAA","GBP","JPY",
@@ -60,6 +61,8 @@ def createImportanceDF(featureImportances,columns):
 def displayScatterOfTop10Features(data,importanceDF,showTimeSeries=True):
     mostImportantFeatures = list(importanceDF.head(10)["columns"])
     for feature in mostImportantFeatures:
+        r,p = spearmanr(data[[feature]].values.ravel(),data[["Next10DayReturn"]].values.ravel())
+        print(f'Spearman correlation for Next 10 day return vs {feature} is r={r},p={p}')
         if(showTimeSeries):
             scaler = StandardScaler()
             timeAnalysis = data[[feature,"Next10DayReturn"]]
@@ -75,4 +78,12 @@ def displayScatterOfTop10Features(data,importanceDF,showTimeSeries=True):
         plt.ylabel("Next 10 Day Return (%)")
         plt.title(f"Next 10 Day Return (%) vs {feature}")
         plt.show()
+
+def retriveLowPValueColumns(X,y):
+    goodColumns = []
+    for col in list(X.columns):
+        r,p = spearmanr(X[[col]].values.ravel(),y)
+        if p < 0.05:
+            goodColumns.append(col)
+    return goodColumns
 
